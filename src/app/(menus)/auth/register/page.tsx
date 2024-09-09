@@ -1,7 +1,3 @@
-// const RegisterPage = () => {
-//   return ("Sample Register");
-// };
-// export default RegisterPage;
 "use client";
 import { Button } from "@/components/ui/button";
 import {
