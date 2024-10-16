@@ -13,137 +13,126 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { RotateCw } from "lucide-react";
+import { useAuthActions } from "../actions/useAuthActions";
+
+// we can define the schema outside of the component
+const formSchema = z.object({
+  firstName: z.string().min(2, {
+    message: "First name must be at least 2 characters.",
+  }),
+  lastName: z.string().min(2, {
+    message: "Last name must be at least 2 characters.",
+  }),
+  email: z.string().email({ message: "Must be a valid email." }),
+});
 
 const AddUser = () => {
-  const formSchema = z.object({
-    firstname: z.string().min(2, {
-      message: "First name must be at least 2 characters.",
-    }),
-    lastname: z.string().min(2, {
-      message: "Last name must be at least 2 characters.",
-    }),
-    isAdmin: z.boolean().optional(),
-    email: z.string().email({ message: "Must be a valid email." }),
-    orgId: z.string().optional(),
+  /**
+   * 'registrationPending' is a boolean value and it servs the purpose of  'isLoading'
+   *
+   * 'registration' is the function that will trigger server call
+   */
+  const { registration, registrationPending } = useAuthActions();
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+    },
   });
 
-  const form = useForm<z.infer<typeof formSchema>>();
-  // {
-  //   resolver: zodResolver(formSchema),
-  //   defaultValues: {
-  //     firstname: "",
-  //     lastname: "",
-  //     email: "",
-  //     isAdmin: false,
-  //     orgId: "",
-  //   },
-  // }
-
-  function onFormSubmit(values: z.infer<typeof formSchema>) {}
+  function onFormSubmit(values: z.infer<typeof formSchema>) {
+    // ... Do any preprocessing you want
+    registration({
+      ...values,
+    });
+    /**
+     * If you want to get access to 'onSuccess' or 'onError' functions here you can do it in this way
+     * registration({...values},{onSuccess:()=>{ //  Do what you want to do on success   }})
+     */
+  }
 
   return (
     <>
-      <h4 className="w-full font-bold text-lg pb-1 border border-r-0  border-t-0 border-l-0">
-        Invite user
-      </h4>
-      <div className="w-full rounded-md py-6 px-3 mt-6 border">
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onFormSubmit)}
-            className="space-y-3 mt-4"
-          >
-            <FormField
-              control={form.control}
-              name="firstname"
-              render={({ field }) => (
-                <FormItem className="space-y-0 mb-0">
-                  <FormLabel className="text-xs text-fade font-medium">
-                    First name
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      className="text-xs"
-                      placeholder="Enter first name"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="lastname"
-              render={({ field }) => (
-                <FormItem className="space-y-0 mb-0">
-                  <FormLabel className="text-xs text-fade font-medium">
-                    Last name
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      className="text-xs"
-                      placeholder="Enter last name"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem className="space-y-0 mb-0">
-                  <FormLabel className="text-xs text-fade font-medium">
-                    Email
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      className="text-xs"
-                      placeholder="Enter email"
-                      {...field}
-                      // @ts-ignore
-                      onKeyUp={(e) => setSearchKey(e.target?.value)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="isAdmin"
-              render={() => (
-                <FormItem>
-                  <FormLabel className="text-[0.8rem] font-medium text-fade flex items-center">
-                    isAdmin
-                  </FormLabel>
-                  <FormControl>
-                    <label className="inline-flex items-center cursor-pointer">
-                      <input type="checkbox" className="sr-only peer" />
-                      <div className="relative w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4  after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {1 ? (
-              <Button
-                disabled
-                type="button"
-                className="mt-2 bg-base flex gap-2 hover:bg-baseHover"
-              >
-                <RotateCw size={15} className="animate-spin" /> Inviting...
-              </Button>
-            ) : (
-              <Button type="submit" className="mt-2 bg-base hover:bg-baseHover">
+      <div className="flex items-center bg-gray-200 justify-center h-screen w-full">
+        <div className="max-w-lg w-full bg-white shadow-lg rounded-md py-6 px-3 mt-6 border">
+          <h4 className="w-full font-bold text-lg pb-1 border border-r-0  border-t-0 border-l-0">
+            Demo form
+          </h4>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onFormSubmit)}
+              className="space-y-3 mt-4"
+            >
+              <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem className="space-y-0 mb-0">
+                    <FormLabel className="text-xs text-fade font-medium">
+                      First name
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className="text-xs"
+                        placeholder="Enter first name"
+                        {...field}
+                        onChange={(e) => {
+                          // custom logic
+                          field.onChange(e);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem className="space-y-0 mb-0">
+                    <FormLabel className="text-xs text-fade font-medium">
+                      Last name
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className="text-xs"
+                        placeholder="Enter last name"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem className="space-y-0 mb-0">
+                    <FormLabel className="text-xs text-fade font-medium">
+                      Email
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className="text-xs"
+                        placeholder="Enter email"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="mt-2 hover:bg-baseHover">
                 Invite
               </Button>
-            )}
-          </form>
-        </Form>
+            </form>
+          </Form>
+        </div>
       </div>
     </>
   );
