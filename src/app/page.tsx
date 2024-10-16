@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <>
       <div className="min-h-screen">
-        <Navbar setSidebarOpen={setSidebarOpen} setToggleMenu={setToggleMenu} />
+        {/* <Navbar setSidebarOpen={setSidebarOpen} setToggleMenu={setToggleMenu} /> */}
         {sidebarOpen && (
           <div className={`min-h-screen `}>
             <Sidebar />
